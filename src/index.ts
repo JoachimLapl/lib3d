@@ -148,6 +148,7 @@ svgElem.onmousemove = function ({ movementX, movementY }) {
     cube2.rotate(movementY * 8e-3, -movementX * 6e-3);
   }
 };
+var nPath = new Lib3D.Path3D(new Lib3D.Point(), new Lib3D.Point(1), new Lib3D.Point(0,1), new Lib3D.Point(0,0,1))
 
 // Try removing if you have issues with hot-reloading
 if (module.hot) module.hot.accept();

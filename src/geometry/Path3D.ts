@@ -21,41 +21,42 @@ class Path3D {
     // On calcule une fonction affine : z = CMx*x + CMy*y + oo qui sert à déterminer si tous les points du path forment quelque chose de plat
     /* Ce n'est pas terminé encore, il y a quelques problèmes quand CMx, CMy ou oo = Infinity ou -Infinity */
     if (points.length > 3) {
-      var a = this.affine3dFunction();
+      var a = this.plane3dFunction();
       for (let p of points) {
         console.log(a, p);
-        var equ =
-          ((a?.CMx ?? 0) * p.x === Infinity &&
-            (a?.CMy ?? 0) * p.y === -Infinity) ||
-          ((a?.CMx ?? 0) * p.x === -Infinity &&
-            (a?.CMy ?? 0) * p.y === Infinity)
-            ? a?.oo
-            : ((a?.CMx ?? 0) * p.x === Infinity && a?.oo === -Infinity) ||
-              ((a?.CMx ?? 0) * p.x === -Infinity && a?.oo === Infinity)
-            ? a?.CMy * p.y
-            : ((a?.CMy ?? 0) * p.y === Infinity && a?.oo === -Infinity) ||
-              ((a?.CMy ?? 0) * p.y === -Infinity && a?.oo === Infinity)
-            ? a?.CMx * p.x
-            : (a?.CMx ?? 0) * p.x + (a?.CMy ?? 0) * p.y + (a?.oo ?? 0);
-        console.log(
-          a?.CMx === Infinity,
-          a?.CMx === -Infinity,
-          a?.CMy === Infinity,
-          a?.CMy === -Infinity,
-          a?.oo === Infinity,
-          a?.oo === -Infinity
-        );
-        var str =
-          (a?.CMx ?? 0) * p.x +
-          "+" +
-          (a?.CMy ?? 0) * p.y +
-          "+" +
-          (a?.oo ?? 0) +
-          " = " +
-          equ;
-        if (equ != p.z) {
-          console.log(str, p.z);
-          //console.error("Path " + this + " is not flat: \n", 'Bumpy paths may appear distorted'); break
+        // var equ =
+        //   ((a?.CMx ?? 0) * p.x === Infinity &&
+        //     (a?.CMy ?? 0) * p.y === -Infinity) ||
+        //     ((a?.CMx ?? 0) * p.x === -Infinity &&
+        //       (a?.CMy ?? 0) * p.y === Infinity)
+        //     ? a?.oo
+        //     : ((a?.CMx ?? 0) * p.x === Infinity && a?.oo === -Infinity) ||
+        //       ((a?.CMx ?? 0) * p.x === -Infinity && a?.oo === Infinity)
+        //       ? a?.CMy * p.y
+        //       : ((a?.CMy ?? 0) * p.y === Infinity && a?.oo === -Infinity) ||
+        //         ((a?.CMy ?? 0) * p.y === -Infinity && a?.oo === Infinity)
+        //         ? a?.CMx * p.x
+        //         : (a?.CMx ?? 0) * p.x + (a?.CMy ?? 0) * p.y + (a?.oo ?? 0);
+        // console.log(
+        //   a?.CMx === Infinity,
+        //   a?.CMx === -Infinity,
+        //   a?.CMy === Infinity,
+        //   a?.CMy === -Infinity,
+        //   a?.oo === Infinity,
+        //   a?.oo === -Infinity
+        // );
+        // var str =
+        //   (a?.CMx ?? 0) * p.x +
+        //   "+" +
+        //   (a?.CMy ?? 0) * p.y +
+        //   "+" +
+        //   (a?.oo ?? 0) +
+        //   " = " +
+        //   equ;
+
+        if (a !== null && a.CMx * p.x + a.CMy * p.y + a.CMz * p.z + a.oo !== 0) {
+          console.log(p.z);
+          console.error("Path " + this + " is not flat: \n", 'Bumpy paths may appear distorted'); break
         }
       }
     }
@@ -78,7 +79,7 @@ class Path3D {
   //   return result;
   // }
   rotate(rx = 0, ry = 0, rz = 0, origin = { x: 0, y: 0, z: 0 }) {
-    console.log(origin);
+    // console.log(origin);
     var result: Point[] = [];
     for (let point of this.unrotated3dPlane)
       result.push(point.rotate(rx, ry, rz, origin));
@@ -116,14 +117,14 @@ class Path3D {
     for (let p of this.unrotated3dPlane) {
       var aff = p.affineFunction(
         this.unrotated3dPlane[
-          (this.unrotated3dPlane.indexOf(p) + 1) % this.unrotated3dPlane.length
+        (this.unrotated3dPlane.indexOf(p) + 1) % this.unrotated3dPlane.length
         ]
       );
       for (let p2 of path2.unrotated3dPlane) {
         var aff2 = p2.affineFunction(
           path2.unrotated3dPlane[
-            (path2.unrotated3dPlane.indexOf(p2) + 1) %
-              path2.unrotated3dPlane.length
+          (path2.unrotated3dPlane.indexOf(p2) + 1) %
+          path2.unrotated3dPlane.length
           ]
         );
         var x = (aff.oo - aff2.oo) / (aff2.CM - aff.CM);
@@ -144,19 +145,31 @@ class Path3D {
   set strokeWidth(w: string) {
     this.path2D.style.strokeWidth = w;
   }
-  affine3dFunction() {
+  plane3dFunction() {
     if (this.unrotated3dPlane.length < 3) return null;
     var A = this.unrotated3dPlane[0],
       B = this.unrotated3dPlane[1],
       C = this.unrotated3dPlane[2];
-    var a = (A.y - C.y) / (B.y - A.y < 0.001 ? 0.001 : B.y - A.y),
-      b = (A.x - C.x) / (B.x - A.x < 0.001 ? 0.001 : B.x - A.x);
-    var c = (a * (B.z - A.z) + C.z - A.z) / (a * (B.x - A.x) + C.x - A.x);
-    var d = (b * (B.z - A.z) + C.z - A.z) / (b * (B.y - A.y) + C.y - A.y);
-    var CMx = c,
-      CMy = d,
-      oo = A.z - c * A.x - d * A.y;
-    return { CMx: CMx, CMy: CMy, oo: oo };
+    //a= ((x_A-x_C )(y_B-y_A )+(y_C-y_A )(x_B-x_A ))
+    //b= ((y_A-y_C )(z_B-z_A )+(z_C-z_A )(y_B-y_A ))
+    //c= ((y_A-y_C )(x_B-x_A )+(x_C-x_A )(y_B-y_A ))
+    //d= ((x_A-x_C )(z_B-z_A )+(z_C-z_A )(x_B-x_A))
+    //xab - x_A ab + ycd - y_A cd + z_A ac - zac = 0
+    var a = ((A.x - C.x) * (B.y - A.y) + (C.y - A.y) * (B.x - A.x)),
+      b = ((A.y - C.y) * (B.z - A.z) + (C.z - A.z) * (B.y - A.y)),
+      c = ((A.y - C.y) * (B.x - A.x) + (C.x - A.x) * (B.y - A.y)),
+      d = ((A.x - C.x) * (B.z - A.z) + (C.z - A.z) * (B.x - A.x));
+    var CMx = a * b,
+      CMy = c * d,
+      CMz = -a * c,
+      oo = -(A.x * CMx + A.y * CMy + A.z * CMz);
+    return { CMx: CMx, CMy: CMy, CMz: CMz, oo: oo };
+  }
+  valueOf() {
+    var result = '[';
+    for (let p of this.unrotated3dPlane)
+      result += (this.unrotated3dPlane.indexOf(p) === 0 ? '' : ',') + '[' + p.x + ',' + p.y + ',' + p.z + ']';
+    return result
   }
 }
 
