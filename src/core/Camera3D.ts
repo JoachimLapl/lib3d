@@ -13,8 +13,8 @@ class Camera3D {
   get vector() { return new Vector3().setFromPoints(this.position, this.orientation); }
   // LonLat(ocs: OCS = new OCS(this.position)) { return {}; }
   // set Orientation(o: Point) { this.orientation = o; }
-  get focalPoint(){
-    return this.vector.multiply(-1/this.perspective)
+  get focalPoint() {
+    return this.position.plusVector(this.vector.multiply(-this.perspective))
   }
 }
 
