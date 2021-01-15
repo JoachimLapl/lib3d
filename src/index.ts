@@ -29,22 +29,22 @@ function createCuboid(
   // Color
   path1.fill = "red";
   path1.stroke = "#000";
-  path1.strokeWidth = "1";
+  path1.strokeWidth = "0";
   path2.fill = "green";
   path2.stroke = "#000";
-  path2.strokeWidth = "1";
+  path2.strokeWidth = "0";
   path3.fill = "blue";
   path3.stroke = "#000";
-  path3.strokeWidth = "1";
+  path3.strokeWidth = "0";
   path4.fill = "yellow";
   path4.stroke = "#000";
-  path4.strokeWidth = "1";
+  path4.strokeWidth = "0";
   path5.fill = "cyan";
   path5.stroke = "#000";
-  path5.strokeWidth = "1";
+  path5.strokeWidth = "0";
   path6.fill = "magenta";
   path6.stroke = "#000";
-  path6.strokeWidth = "1";
+  path6.strokeWidth = "0";
 
   return new Lib3D.Object3D(path1, path2, path3, path4, path5, path6);
 }
@@ -104,7 +104,6 @@ const camera = new Lib3D.Camera3D();
 const cube = createCuboid(-100, -100, -100, 200, 200, 200);
 const cube2 = createCuboid(-100, -100, -100, 200, 200, 200);
 // const sphere = Sphere(100,20,30);
-// console.log(sphere)
 
 // Tanslate objects
 cube2.translate(-100, 100);
@@ -112,9 +111,7 @@ cube2.translate(-100, 100);
 scene.add(cube);
 scene.add(cube2);
 
-// svg.insert(sphere)
 camera.perspective = 5e2;
-// svg.Perspective = 5e2;
 
 // Animate objects
 function animate() {
@@ -144,8 +141,8 @@ svgElem.onmouseleave = function () {
 svgElem.onmousemove = function ({ movementX, movementY }) {
   if (mousePressed) {
     cube.rotate(movementY * 8e-3, -movementX * 6e-3, 0);
-    // cube2.translate(movementX/5,-movementY/5)
     cube2.rotate(movementY * 8e-3, -movementX * 6e-3);
+    console.log(cube.unrotated3dPlane[0].plane3dFunction)
   }
 };
 

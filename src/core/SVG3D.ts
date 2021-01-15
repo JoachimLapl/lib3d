@@ -6,12 +6,14 @@ class SVG3D {
   svg: SVGSVGElement;
   elements: { [key: string]: Path3D[] } = {};
   o: { x: number; y: number };
+  viewer: Camera3D;
   constructor(
     svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
     origin = { x: 0.5, y: 0.5 }
   ) {
     this.svg = svg;
     this.o = origin;
+    this.viewer = new Camera3D() 
   }
   insert(...objects: Object3D[]) {
     for (let object of objects)
@@ -41,7 +43,8 @@ class SVG3D {
     for (let id in this.elements)
       for (let path of this.elements[id]) path.perspective = p;
   }
-  set viewer(viewer: Camera3D) {
+  set Viewer(viewer: Camera3D) {
+    this.viewer = viewer;
     this.display();
   }
 }

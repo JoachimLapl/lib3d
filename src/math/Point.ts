@@ -1,3 +1,5 @@
+import { Vector3 } from "./Vector3";
+
 const pi = Math.PI,
   cos = Math.cos,
   sin = Math.sin,
@@ -48,11 +50,29 @@ class Point {
     this.z += tz;
     return this;
   }
-  affineFunction(point2: Point) {
-    /*** Finds the affine function of the line that goes between this ans point2 ***/
-    var a = (point2.x - this.x) / (this.y - point2.y);
-    var b = point2.y - a * point2.x;
-    return { CM: a, oo: b };
+  affineFunction(B: Point) {
+    /*** Finds the affine function of the line that goes between A ans B ***/
+    var A = this;
+    return {
+      x: {
+        y: (x: number) => { return (B.y - A.y) / (A.x - B.x) * (x - B.x) + B.y },
+        z: (x: number) => { return (B.z - A.z) / (A.x - B.x) * (x - B.x) + B.z }
+      },
+      y: {
+        x: (x: number) => { return (B.y - A.y) / (A.y - B.y) * (x - B.y) + B.x },
+        z: (x: number) => { return (B.z - A.z) / (A.y - B.y) * (x - B.y) + B.z }
+      },
+      z: {
+        x: (x: number) => { return (B.x - A.x) / (A.z - B.z) * (x - B.z) + B.x },
+        y: (x: number) => { return (B.y - A.y) / (A.z - B.z) * (x - B.z) + B.y }
+      }
+    }
+  }
+  plusVector(v: Vector3) {
+    return new Point(
+      this.x + v.x,
+      this.y + v.y,
+      this.z + v.z)
   }
 }
 
